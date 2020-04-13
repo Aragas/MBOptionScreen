@@ -7,6 +7,9 @@
     <GameFolder>C:\Program Files (x86)\Steam\steamapps\common\Mount &amp; Blade II Bannerlord</GameFolder>
     <Authors>mipen, Aragas</Authors>
     <Copyright>Copyright ©  2020</Copyright>
+    <SignAssembly>true</SignAssembly>
+    <DelaySign>false</DelaySign>
+    <AssemblyOriginatorKeyFile>MBOptionScreen.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>

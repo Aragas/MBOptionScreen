@@ -13,7 +13,7 @@ namespace MBOptionScreen.Patches
     {
         public static void Postfix()
         {
-            ModOptions.EndInitializeV1();
+            OptionsScreen.EndInitializeV1();
         }
     }
 }

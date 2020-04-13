@@ -21,7 +21,7 @@ namespace MBOptionScreen.Patches
         {
             __result.Insert(1, new EscapeMenuItemVM(
                 new TextObject("{=NqarFr4P}Mod Options", null),
-                obj => ScreenManager.PushScreen(ModOptions._sync.ModOptionScreen),
+                obj => ScreenManager.PushScreen(OptionsScreen.SyncObject.ModOptionScreen),
                 null, false, false));
         }
     }
