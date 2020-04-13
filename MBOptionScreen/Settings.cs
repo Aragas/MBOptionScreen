@@ -10,6 +10,6 @@ namespace MBOptionScreen
         public override string ModuleFolderName => "OptionScreen";
 
         [XmlElement]
-        public override string ID { get; set; } = "OptionScreen_v1";
+        public override string Id { get; set; } = "OptionScreen_v1";
     }
 }

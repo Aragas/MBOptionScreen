@@ -21,7 +21,7 @@ namespace MBOptionScreen.SettingDatabase
 
                 var emptySettings = new T();
 
-                _instance = FileDatabase.FileDatabase.Get<T>(emptySettings.ID);
+                _instance = FileDatabase.FileDatabase.Get<T>(emptySettings.Id);
                 if (_instance != null)
                     return _instance;
 
@@ -35,7 +35,7 @@ namespace MBOptionScreen.SettingDatabase
 
     public abstract class SettingsBase : ISerializeableFile, ISubFolder
     {
-        public abstract string ID { get; set; }
+        public abstract string Id { get; set; }
         public abstract string ModuleFolderName { get; }
         public abstract string ModName { get; }
         public virtual string SubFolder => "";
@@ -50,7 +50,6 @@ namespace MBOptionScreen.SettingDatabase
                             where propAttr != null
                             let groupAttrToAdd = groupAttr ?? SettingPropertyGroupAttribute.Default
                             select new SettingProperty(propAttr, groupAttrToAdd, p, this)).ToList();
-
 
             foreach (var settingProp in propList)
             {
@@ -77,7 +76,7 @@ namespace MBOptionScreen.SettingDatabase
             if (sp.GroupAttribute == null)
                 throw new Exception($"SettingProperty {sp.Name} has null GroupAttribute");
 
-            SettingPropertyGroup group = groupsList.Where((x) => x.GroupName == sp.GroupAttribute.GroupName).FirstOrDefault();
+            var group = groupsList.FirstOrDefault(x => x.GroupName == sp.GroupAttribute.GroupName);
             if (group == null)
             {
                 group = new SettingPropertyGroup(sp.GroupAttribute);
@@ -88,7 +87,7 @@ namespace MBOptionScreen.SettingDatabase
 
         private SettingPropertyGroup GetGroupFor(List<SettingPropertyGroup> groupsList, string groupName)
         {
-            return groupsList.Where((x) => x.GroupName == groupName).FirstOrDefault();
+            return groupsList.FirstOrDefault(x => x.GroupName == groupName);
         }
 
         private void CheckIsValid(SettingProperty prop)

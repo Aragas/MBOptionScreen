@@ -14,7 +14,7 @@ namespace MBOptionScreen.Patches
     /// </summary>
     [HarmonyPatch(typeof(GauntletMovie))]
     [HarmonyPatch("LoadMovie")]
-    internal class GauntletMoviePatch
+    internal static class GauntletMoviePatch
     {
         private static PropertyInfo RootViewProperty { get; } =
             typeof(GauntletMovie).GetProperty("RootView", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);

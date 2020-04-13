@@ -6,6 +6,6 @@ namespace MBOptionScreen.Attributes
     public interface IAttributeWithVersion
     {
         ApplicationVersion GameVersion { get; }
-        int ImplementationVersion { get;} 
+        int ImplementationVersion { get;}
     }
 }

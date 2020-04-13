@@ -20,6 +20,7 @@ namespace MBOptionScreen.SettingDatabase
     [SettingsStorageVersion("e1.0.8",  1)]
     [SettingsStorageVersion("e1.0.9",  1)]
     [SettingsStorageVersion("e1.0.10", 1)]
+    [SettingsStorageVersion("e1.0.11", 1)]
     [SettingsStorageVersion("e1.1.0",  1)]
     internal class DefaultSettingsStorage : ISettingsStorage
     {
@@ -32,14 +33,14 @@ namespace MBOptionScreen.SettingDatabase
         public DefaultSettingsStorage()
         {
             var settings = new Settings();
-            AllSettingsDict.Add(settings.ID, settings);
+            AllSettingsDict.Add(settings.Id, settings);
         }
 
         public bool RegisterSettings(SettingsBase settingsClass)
         {
-            if (!AllSettingsDict.ContainsKey(settingsClass.ID))
+            if (!AllSettingsDict.ContainsKey(settingsClass.Id))
             {
-                AllSettingsDict.Add(settingsClass.ID, settingsClass);
+                AllSettingsDict.Add(settingsClass.Id, settingsClass);
                 return true;
             }
             else
@@ -49,7 +50,7 @@ namespace MBOptionScreen.SettingDatabase
             }
         }
 
-        public ISerializeableFile GetSettings(string uniqueID) => AllSettingsDict.ContainsKey(uniqueID) ? AllSettingsDict[uniqueID] : null;
+        public ISerializeableFile? GetSettings(string uniqueId) => AllSettingsDict.TryGetValue(uniqueId, out var val) ? val : null;
 
         public void SaveSettings(SettingsBase settingsInstance)
         {
@@ -62,7 +63,8 @@ namespace MBOptionScreen.SettingDatabase
             {
                 return AllSettings
                     .Select(settings => new ModSettingsVM(settings))
-                    .OrderBy(x => x.ModName);
+                    .OrderByDescending(a => a.ModName != Settings.Instance!.Id)
+                    .ThenBy(a => a.ModName);
             }
             catch (Exception ex)
             {

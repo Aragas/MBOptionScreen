@@ -2,7 +2,7 @@
 {
     public interface ISerializeableFile
     {
-        string ID { get; set; }
+        string Id { get; set; }
         string ModuleFolderName { get; }
     }
 }

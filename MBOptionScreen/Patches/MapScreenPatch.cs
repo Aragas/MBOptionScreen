@@ -17,7 +17,7 @@ namespace MBOptionScreen.Patches
     /// </summary>
     [HarmonyPatch(typeof(MapScreen))]
     [HarmonyPatch("GetEscapeMenuItems")]
-    internal class MapScreenPatch
+    internal static class MapScreenPatch
     {
         private static MethodInfo OnEscapeMenuToggledMethod { get; } =
             typeof(MapScreen).GetMethod("OnEscapeMenuToggled", BindingFlags.Instance | BindingFlags.NonPublic);

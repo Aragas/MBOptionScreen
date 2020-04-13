@@ -5,10 +5,10 @@ using TaleWorlds.Library;
 namespace MBOptionScreen.Attributes
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-    public class FileStorageVersionAttribute : Attribute, IAttributeWithVersion
+    public sealed class FileStorageVersionAttribute : Attribute, IAttributeWithVersion
     {
-        public ApplicationVersion GameVersion { get; private set; }
-        public int ImplementationVersion { get; private set; } = 0;
+        public ApplicationVersion GameVersion { get; }
+        public int ImplementationVersion { get; }
 
         public FileStorageVersionAttribute(string gameVersion, int implementationVersion)
         {

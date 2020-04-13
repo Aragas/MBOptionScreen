@@ -22,6 +22,7 @@ namespace MBOptionScreen.GUI.v1.GauntletUI
     [ModuleOptionVersion("e1.0.8",  1)]
     [ModuleOptionVersion("e1.0.9",  1)]
     [ModuleOptionVersion("e1.0.10", 1)]
+    [ModuleOptionVersion("e1.0.11", 1)]
     [ModuleOptionVersion("e1.1.0",  1)]
     [OverrideView(typeof(ModSettingsScreenVM))]
     public class ModOptionsGauntletScreen : ScreenBase
@@ -51,7 +52,7 @@ namespace MBOptionScreen.GUI.v1.GauntletUI
         protected override void OnFrameTick(float dt)
         {
             base.OnFrameTick(dt);
-            if (_gauntletLayer.Input.IsHotKeyReleased("Exit") || _gauntletLayer.Input.IsGameKeyReleased(34))
+            if (_gauntletLayer.Input.IsHotKeyReleased("Exit"))
             {
                 _dataSource.ExecuteClose();
                 ScreenManager.TrySetFocus(_gauntletLayer);

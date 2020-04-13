@@ -13,7 +13,7 @@ namespace MBOptionScreen.SettingDatabase
         List<ModSettingsVM> ModSettingsVMs { get; }
 
         bool RegisterSettings(SettingsBase settingsClass);
-        ISerializeableFile GetSettings(string uniqueID);
+        ISerializeableFile? GetSettings(string uniqueId);
         void SaveSettings(SettingsBase settingsInstance);
     }
 }

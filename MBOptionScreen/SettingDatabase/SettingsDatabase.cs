@@ -16,8 +16,8 @@ namespace MBOptionScreen.SettingDatabase
         public static bool RegisterSettings(SettingsBase settingsClass) =>
             SettingsStorage.RegisterSettings(settingsClass);
 
-        public static ISerializeableFile GetSettings(string uniqueID) =>
-            SettingsStorage.GetSettings(uniqueID);
+        public static ISerializeableFile? GetSettings(string uniqueId) =>
+            SettingsStorage.GetSettings(uniqueId);
 
         public static void SaveSettings(SettingsBase settingsInstance) =>
             SettingsStorage.SaveSettings(settingsInstance);
