@@ -1,0 +1,31 @@
+﻿using MBOptionScreen.Interfaces;
+
+namespace MBOptionScreen
+{
+    internal class SetValueAction<T> : IAction where T : struct
+    {
+        public Ref Context { get; private set; }
+
+        public object Value { get; private set; }
+
+        private T original;
+
+        public SetValueAction(Ref context, T value)
+        {
+            Context = context;
+            Value = value;
+
+            original = (T)Context.Value;
+        }
+
+        public void Do()
+        {
+            Context.Value = Value;
+        }
+
+        public void Undo()
+        {
+            Context.Value = original;
+        }
+    }
+}
