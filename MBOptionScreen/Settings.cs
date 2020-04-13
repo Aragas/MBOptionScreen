@@ -6,10 +6,10 @@ namespace MBOptionScreen
 {
     public class Settings : SettingsBase<Settings>
     {
-        public override string ModName => $"ModLib v1";
-        public override string ModuleFolderName => "ModLib";
+        public override string ModName => $"OptionScreen v1";
+        public override string ModuleFolderName => "OptionScreen";
 
         [XmlElement]
-        public override string ID { get; set; } = "ModLib_v1";
+        public override string ID { get; set; } = "OptionScreen_v1";
     }
 }

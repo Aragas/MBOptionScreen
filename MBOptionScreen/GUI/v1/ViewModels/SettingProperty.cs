@@ -13,8 +13,9 @@ namespace MBOptionScreen.GUI.v1.ViewModels
     {
         private float _floatValue = 0f;
         private int _intValue = 0;
-        private bool initialising = false;
+        private bool initializing = false;
 
+        public ModSettingsScreenVM MainView { get; private set; }
         public SettingPropertyAttribute SettingAttribute { get; private set; }
         public PropertyInfo Property { get; private set; }
         public SettingPropertyGroupAttribute GroupAttribute { get; private set; }
@@ -22,7 +23,6 @@ namespace MBOptionScreen.GUI.v1.ViewModels
         public ISerializeableFile SettingsInstance { get; private set; }
         public SettingType SettingType { get; private set; }
         public UndoRedoStack URS { get; private set; }
-        public ModSettingsScreenVM Parent { get; private set; }
         public string HintText { get; private set; }
 
         [DataSourceProperty]
@@ -49,9 +49,9 @@ namespace MBOptionScreen.GUI.v1.ViewModels
         {
             get
             {
-                if (Group != null && GroupAttribute != null && GroupAttribute.IsMainToggle)
+                if (Group != null && GroupAttribute?.IsMainToggle == true)
                     return false;
-                else if (!Group.GroupToggle)
+                else if (Group?.GroupToggle == false)
                     return false;
                 else
                     return true;
@@ -61,10 +61,7 @@ namespace MBOptionScreen.GUI.v1.ViewModels
         [DataSourceProperty]
         public float FloatValue
         {
-            get
-            {
-                return _floatValue;
-            }
+            get => _floatValue;
             set
             {
                 if (SettingType == SettingType.Float && _floatValue != value)
@@ -78,10 +75,7 @@ namespace MBOptionScreen.GUI.v1.ViewModels
         [DataSourceProperty]
         public int IntValue
         {
-            get
-            {
-                return _intValue;
-            }
+            get => _intValue;
             set
             {
                 if (SettingType == SettingType.Int)
@@ -93,24 +87,24 @@ namespace MBOptionScreen.GUI.v1.ViewModels
             }
         }
         [DataSourceProperty]
-        public float FinalisedFloatValue
+        public float FinalizedFloatValue
         {
             get => 0;
             set
             {
-                if ((float)Property.GetValue(SettingsInstance) != value && !initialising)
+                if (Property.GetValue(SettingsInstance) is float val && val != value && !initializing)
                 {
-                    URS.Do(new SetValueAction<float>(new Ref(Property, SettingsInstance), (float)Math.Round((double)value, 2, MidpointRounding.ToEven)));
+                    URS.Do(new SetValueAction<float>(new Ref(Property, SettingsInstance), (float) Math.Round(value, 2, MidpointRounding.ToEven)));
                 }
             }
         }
         [DataSourceProperty]
-        public int FinalisedIntValue
+        public int FinalizedIntValue
         {
             get => 0;
             set
             {
-                if ((int)Property.GetValue(SettingsInstance) != value && !initialising)
+                if (Property.GetValue(SettingsInstance) is int val && val != value && !initializing)
                 {
                     URS.Do(new SetValueAction<int>(new Ref(Property, SettingsInstance), value));
                 }
@@ -119,13 +113,7 @@ namespace MBOptionScreen.GUI.v1.ViewModels
         [DataSourceProperty]
         public bool BoolValue
         {
-            get
-            {
-                if (SettingType == SettingType.Bool)
-                    return (bool)Property.GetValue(SettingsInstance);
-                else
-                    return false;
-            }
+            get => SettingType == SettingType.Bool && Property.GetValue(SettingsInstance) is bool val && val;
             set
             {
                 if (SettingType == SettingType.Bool)
@@ -134,7 +122,7 @@ namespace MBOptionScreen.GUI.v1.ViewModels
                     {
                         URS.Do(new SetValueAction<bool>(new Ref(Property, SettingsInstance), value));
                         //Property.SetValue(SettingsInstance, value);
-                        OnPropertyChanged();
+                        OnPropertyChanged(nameof(BoolValue));
                     }
                 }
             }
@@ -144,18 +132,12 @@ namespace MBOptionScreen.GUI.v1.ViewModels
         [DataSourceProperty]
         public float MinValue => SettingAttribute.MinValue;
         [DataSourceProperty]
-        public string ValueString
+        public string ValueString => SettingType switch
         {
-            get
-            {
-                if (SettingType == SettingType.Int)
-                    return IntValue.ToString();
-                else if (SettingType == SettingType.Float)
-                    return FloatValue.ToString("0.00");
-                else
-                    return "";
-            }
-        }
+            SettingType.Int => IntValue.ToString(),
+            SettingType.Float => FloatValue.ToString("0.00"),
+            _ => ""
+        };
 
         public SettingProperty(SettingPropertyAttribute settingAttribute, SettingPropertyGroupAttribute groupAttribute, PropertyInfo property, ISerializeableFile instance)
         {
@@ -171,7 +153,7 @@ namespace MBOptionScreen.GUI.v1.ViewModels
         public override void RefreshValues()
         {
             base.RefreshValues();
-            initialising = true;
+            initializing = true;
             SetType();
             if (!string.IsNullOrWhiteSpace(SettingAttribute.HintText))
                 HintText = $"{Name}: {SettingAttribute.HintText}";
@@ -180,7 +162,7 @@ namespace MBOptionScreen.GUI.v1.ViewModels
                 FloatValue = (float)Property.GetValue(SettingsInstance);
             else if (SettingType == SettingType.Int)
                 IntValue = (int)Property.GetValue(SettingsInstance);
-            initialising = false;
+            initializing = false;
         }
 
         private void SetType()
@@ -200,21 +182,21 @@ namespace MBOptionScreen.GUI.v1.ViewModels
             URS = urs;
         }
 
-        public void SetParent(ModSettingsScreenVM parent)
+        public void SetMainView(ModSettingsScreenVM mainView)
         {
-            Parent = parent;
+            MainView = mainView;
         }
 
         public void OnHover()
         {
-            if (Parent != null)
-                Parent.HintText = HintText;
+            if (MainView != null)
+                MainView.HintText = HintText;
         }
 
         public void OnHoverEnd()
         {
-            if (Parent != null)
-                Parent.HintText = "";
+            if (MainView != null)
+                MainView.HintText = "";
         }
     }
 }

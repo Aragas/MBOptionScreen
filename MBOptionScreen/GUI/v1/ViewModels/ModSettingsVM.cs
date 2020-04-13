@@ -26,7 +26,7 @@ namespace MBOptionScreen.GUI.v1.ViewModels
             set
             {
                 _isSelected = value;
-                OnPropertyChanged();
+                OnPropertyChanged(nameof(IsSelected));
             }
         }
         [DataSourceProperty]
@@ -38,7 +38,7 @@ namespace MBOptionScreen.GUI.v1.ViewModels
                 if (_settingPropertyGroups != value)
                 {
                     _settingPropertyGroups = value;
-                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(SettingPropertyGroups));
                 }
             }
         }
@@ -61,9 +61,9 @@ namespace MBOptionScreen.GUI.v1.ViewModels
             base.RefreshValues();
             foreach (var group in SettingPropertyGroups)
                 group.RefreshValues();
-            OnPropertyChanged("IsSelected");
-            OnPropertyChanged("ModName");
-            OnPropertyChanged("SettingPropertyGroups");
+            OnPropertyChanged(nameof(IsSelected));
+            OnPropertyChanged(nameof(ModName));
+            OnPropertyChanged(nameof(SettingPropertyGroups));
         }
 
         public void AddSelectCommand(Action<ModSettingsVM> command)
@@ -82,6 +82,5 @@ namespace MBOptionScreen.GUI.v1.ViewModels
         {
             _executeSelect?.Invoke(this);
         }
-
     }
 }

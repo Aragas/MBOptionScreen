@@ -7,7 +7,7 @@ namespace MBOptionScreen.SettingDatabase
 {
     internal static class SettingsDatabase
     {
-        private static ISettingsStorage SettingsStorage => OptionsScreen.SyncObject.SettingsStorage;
+        private static ISettingsStorage SettingsStorage => MBOptionScreenSubModule.SyncObject.SettingsStorage;
 
         public static List<SettingsBase> AllSettings => SettingsStorage.AllSettings;
         public static int SettingsCount => SettingsStorage.SettingsCount;
@@ -21,8 +21,5 @@ namespace MBOptionScreen.SettingDatabase
 
         public static void SaveSettings(SettingsBase settingsInstance) =>
             SettingsStorage.SaveSettings(settingsInstance);
-
-        public static void BuildModSettingsVMs() =>
-            SettingsStorage.BuildModSettingsVMs();
     }
 }

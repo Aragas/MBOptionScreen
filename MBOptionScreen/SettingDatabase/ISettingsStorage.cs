@@ -15,6 +15,5 @@ namespace MBOptionScreen.SettingDatabase
         bool RegisterSettings(SettingsBase settingsClass);
         ISerializeableFile GetSettings(string uniqueID);
         void SaveSettings(SettingsBase settingsInstance);
-        void BuildModSettingsVMs();
     }
 }

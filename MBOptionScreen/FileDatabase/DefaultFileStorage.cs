@@ -7,23 +7,24 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 using System.Xml.Serialization;
-
+using TaleWorlds.Engine;
 using TaleWorlds.Library;
+using Path = System.IO.Path;
 
 namespace MBOptionScreen.FileDatabase
 {
-    [FileStorageVersion("1.0.0",  1)]
-    [FileStorageVersion("1.0.1",  1)]
-    [FileStorageVersion("1.1.2",  1)]
-    [FileStorageVersion("1.1.3",  1)]
-    [FileStorageVersion("1.1.4",  1)]
-    [FileStorageVersion("1.1.5",  1)]
-    [FileStorageVersion("1.1.6",  1)]
-    [FileStorageVersion("1.1.7",  1)]
-    [FileStorageVersion("1.1.8",  1)]
-    [FileStorageVersion("1.1.9",  1)]
-    [FileStorageVersion("1.1.10", 1)]
-    [FileStorageVersion("1.1.0",  1)]
+    [FileStorageVersion("e1.0.0",  1)]
+    [FileStorageVersion("e1.0.1",  1)]
+    [FileStorageVersion("e1.0.2",  1)]
+    [FileStorageVersion("e1.0.3",  1)]
+    [FileStorageVersion("e1.0.4",  1)]
+    [FileStorageVersion("e1.0.5",  1)]
+    [FileStorageVersion("e1.0.6",  1)]
+    [FileStorageVersion("e1.0.7",  1)]
+    [FileStorageVersion("e1.0.8",  1)]
+    [FileStorageVersion("e1.0.9",  1)]
+    [FileStorageVersion("e1.0.10", 1)]
+    [FileStorageVersion("e1.1.0",  1)]
     internal class DefaultFileStorage : IFileStorage
     {
         private readonly string LoadablesFolderName = "Loadables";
@@ -32,7 +33,7 @@ namespace MBOptionScreen.FileDatabase
 
         public bool Initialize(string moduleName)
         {
-            bool successful = false;
+            var successful = false;
             try
             {
                 LoadAllFiles(moduleName);
@@ -51,10 +52,11 @@ namespace MBOptionScreen.FileDatabase
             //First check if the dictionary contains the key
             if (!Data.ContainsKey(typeof(T)))
                 return default;
+
             if (!Data[typeof(T)].ContainsKey(id))
                 return default;
 
-            return (T)Data[typeof(T)][id];
+            return (T) Data[typeof(T)][id];
         }
 
         public bool SaveToFile(string moduleName, ISerializeableFile sf, Location location = Location.Modules)
@@ -66,37 +68,39 @@ namespace MBOptionScreen.FileDatabase
                 if (string.IsNullOrWhiteSpace(moduleName))
                     throw new Exception($"FileDatabase tried to save an object of type {sf.GetType().FullName} with ID {sf.ID} but the module folder name given was null or empty.");
 
-                string path = GetPathForModule(moduleName, location);
-
+                var path = GetPathForModule(moduleName, location);
                 if (!Directory.Exists(path))
                     throw new Exception($"FileDatabase cannot find the module named {moduleName}");
 
                 if (location == Location.Modules)
                     path = Path.Combine(path, "ModuleData", LoadablesFolderName);
 
-                if (sf is ISubFolder)
-                {
-                    ISubFolder subFolder = sf as ISubFolder;
-                    if (!string.IsNullOrWhiteSpace(subFolder.SubFolder))
-                        path = Path.Combine(path, subFolder.SubFolder);
-                }
+                if (sf is ISubFolder subFolder && !string.IsNullOrWhiteSpace(subFolder.SubFolder))
+                    path = Path.Combine(path, subFolder.SubFolder);
 
                 if (!Directory.Exists(path))
                     Directory.CreateDirectory(path);
 
-                path = Path.Combine(path, $@"{sf.GetType().Name}.{sf.ID}.xml");
+                path = Path.Combine(path, $"{sf.GetType().Name}.{sf.ID}.xml");
 
                 if (File.Exists(path))
                     File.Delete(path);
 
-                using (XmlWriter writer = XmlWriter.Create(path, new XmlWriterSettings() { Indent = true, OmitXmlDeclaration = true }))
+                using var writer = XmlWriter.Create(path, new XmlWriterSettings
                 {
-                    XmlRootAttribute rootNode = new XmlRootAttribute();
-                    rootNode.ElementName = $"{sf.GetType().Assembly.GetName().Name}-{sf.GetType().FullName}";
-                    XmlSerializerNamespaces xmlns = new XmlSerializerNamespaces(new[] { XmlQualifiedName.Empty });
-                    var serializer = new XmlSerializer(sf.GetType(), rootNode);
-                    serializer.Serialize(writer, sf, xmlns);
-                }
+                    Indent = true,
+                    OmitXmlDeclaration = true
+                });
+                var rootNode = new XmlRootAttribute
+                {
+                    ElementName = $"{sf.GetType().Assembly.GetName().Name}-{sf.GetType().FullName}"
+                };
+                var xmlns = new XmlSerializerNamespaces(new[]
+                {
+                    XmlQualifiedName.Empty
+                });
+                var serializer = new XmlSerializer(sf.GetType(), rootNode);
+                serializer.Serialize(writer, sf, xmlns);
                 return true;
             }
             catch (Exception ex)
@@ -114,7 +118,7 @@ namespace MBOptionScreen.FileDatabase
             if (string.IsNullOrWhiteSpace(loadable.ID))
                 throw new ArgumentNullException($"Loadable of type {loadable.GetType().ToString()} has missing ID field");
 
-            Type type = loadable.GetType();
+            var type = loadable.GetType();
             if (!Data.ContainsKey(type))
                 Data.Add(type, new Dictionary<string, ISerializeableFile>());
 
@@ -131,46 +135,49 @@ namespace MBOptionScreen.FileDatabase
         private void LoadFromFile(string filePath)
         {
             //DEBUG:: People can't read and aren't deleting the old mod installation. Need to manually delete the old config file for a couple updates.
-            string modulefolder = Directory.GetParent(filePath).Parent.Parent.Name;
+            var modulefolder = Directory.GetParent(filePath).Parent.Parent.Name;
             if (Path.GetFileName(filePath) == "config.xml" && modulefolder == "zzBannerlordTweaks")
             {
                 File.Delete(filePath);
                 return;
             }
-            using (XmlReader reader = XmlReader.Create(filePath))
+
+            using var reader = XmlReader.Create(filePath);
+            var nodeData = "";
+            try
             {
-                string nodeData = "";
-                try
+                //Find the type name
+                if (reader.MoveToContent() == XmlNodeType.Element)
+                    nodeData = reader.Name;
+
+                //If we couldn't find the type name, throw an exception saying so. If the root node doesn't include the namespace, throw an exception saying so.
+                if (string.IsNullOrWhiteSpace(nodeData))
+                    throw new Exception($"Could not find the root node in xml document located at {filePath}");
+
+                var data = new TypeData(nodeData);
+                //Find the type from the root node name. The root node should be the full name of the type, including the namespace and the assembly.
+
+                if (data.Type == null)
+                    throw new Exception($"Unable to find type {data.FullName}");
+
+                var root = new XmlRootAttribute
                 {
-                    //Find the type name
-                    if (reader.MoveToContent() == XmlNodeType.Element)
-                        nodeData = reader.Name;
-                    //If we couldn't find the type name, throw an exception saying so. If the root node doesn't include the namespace, throw an exception saying so.
-                    if (string.IsNullOrWhiteSpace(nodeData))
-                        throw new Exception($"Could not find the root node in xml document located at {filePath}");
+                    ElementName = nodeData,
+                    IsNullable = true
+                };
+                var serializer = new XmlSerializer(data.Type, root);
+                var loaded = (ISerializeableFile) serializer.Deserialize(reader);
+                if (loaded != null)
+                    Add(loaded);
+                else
+                    throw new Exception($"Unable to load {data.FullName} from file {filePath}.");
+            }
+            catch (Exception ex)
+            {
+                if (ex is ArgumentNullException exception && exception.ParamName == "type")
+                    throw new Exception($"Cannot get a type from type name {nodeData} in file {filePath}", exception);
 
-                    TypeData data = new TypeData(nodeData);
-                    //Find the type from the root node name. The root node should be the full name of the type, including the namespace and the assembly.
-
-                    if (data.Type == null)
-                        throw new Exception($"Unable to find type {data.FullName}");
-
-                    XmlRootAttribute root = new XmlRootAttribute();
-                    root.ElementName = nodeData;
-                    root.IsNullable = true;
-                    XmlSerializer serialiser = new XmlSerializer(data.Type, root);
-                    ISerializeableFile loaded = (ISerializeableFile)serialiser.Deserialize(reader);
-                    if (loaded != null)
-                        Add(loaded);
-                    else
-                        throw new Exception($"Unable to load {data.FullName} from file {filePath}.");
-                }
-                catch (Exception ex)
-                {
-                    if (ex is ArgumentNullException && ((ArgumentNullException)ex).ParamName == "type")
-                        throw new Exception($"Cannot get a type from type name {nodeData} in file {filePath}", ex);
-                    throw new Exception($"An error occurred whilst loading file {filePath}", ex);
-                }
+                throw new Exception($"An error occurred whilst loading file {filePath}", ex);
             }
         }
 
@@ -182,11 +189,11 @@ namespace MBOptionScreen.FileDatabase
         {
             #region Loadables Folder
             //Check if the given module name is correct
-            string modulePath = GetPathForModule(moduleName, Location.Modules);
+            var modulePath = GetPathForModule(moduleName, Location.Modules);
             if (!Directory.Exists(modulePath))
                 throw new Exception($"Cannot find module named {moduleName}");
             //Check the module's ModuleData folder for the Loadables folder.
-            string moduleLoadablesPath = Path.Combine(modulePath, "ModuleData", LoadablesFolderName);
+            var moduleLoadablesPath = Path.Combine(modulePath, "ModuleData", LoadablesFolderName);
             if (Directory.Exists(moduleLoadablesPath))
             {
                 try
@@ -199,8 +206,8 @@ namespace MBOptionScreen.FileDatabase
                     }
 
                     //Loop through any subfolders and load the files in them
-                    string[] subDirs = Directory.GetDirectories(moduleLoadablesPath);
-                    if (subDirs.Count() > 0)
+                    var subDirs = Directory.GetDirectories(moduleLoadablesPath);
+                    foreach (var dir in subDirs)
                     {
                         foreach (var subDir in subDirs)
                         {
@@ -217,6 +224,8 @@ namespace MBOptionScreen.FileDatabase
                                 }
                             }
                         }
+
+                        break;
                     }
                 }
                 catch (Exception ex)
@@ -229,10 +238,10 @@ namespace MBOptionScreen.FileDatabase
             #endregion
             #region Documents Folder
             //TODO::
-            string modConfigsPath = GetPathForModule(moduleName, Location.Configs);
+            var modConfigsPath = GetPathForModule(moduleName, Location.Configs);
             if (Directory.Exists(modConfigsPath))
             {
-                foreach (string filePath in Directory.GetFiles(modConfigsPath))
+                foreach (var filePath in Directory.GetFiles(modConfigsPath))
                 {
                     try
                     {
@@ -250,27 +259,18 @@ namespace MBOptionScreen.FileDatabase
             #endregion
         }
 
-        private static string GetPathForModule(string moduleName, Location location)
+        private static string GetPathForModule(string moduleName, Location location) => location switch
         {
-            if (location == Location.Modules)
-                return Path.Combine(BasePath.Name, "Modules", moduleName);
-            else
-                return Path.Combine(TaleWorlds.Engine.Utilities.GetConfigsPath(), moduleName);
-        }
-
+            Location.Modules => Path.Combine(BasePath.Name, "Modules", moduleName),
+            Location.Configs => Path.Combine(Utilities.GetConfigsPath(), moduleName)
+        };
 
         private class TypeData
         {
-            public string AssemblyName { get; private set; } = "";
-            public string TypeName { get; private set; } = "";
+            public string AssemblyName { get; private set; }
+            public string TypeName { get; private set; }
             public string FullName => $"{TypeName}, {AssemblyName}";
-            public Type Type
-            {
-                get
-                {
-                    return Type.GetType(FullName);
-                }
-            }
+            public Type Type => Type.GetType(FullName);
 
             public TypeData(string nodeData)
             {
@@ -281,7 +281,7 @@ namespace MBOptionScreen.FileDatabase
                     if (!nodeData.Contains("."))
                         throw new ArgumentException($"Node data does not contain a namespace string\nNode Data: {nodeData}");
 
-                    string[] split = nodeData.Split('-');
+                    var split = nodeData.Split('-');
 
                     if (!string.IsNullOrWhiteSpace(split[0]))
                         AssemblyName = split[0];

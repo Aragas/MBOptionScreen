@@ -4,7 +4,7 @@ namespace MBOptionScreen.FileDatabase
 {
     internal static class FileDatabase
     {
-        private static IFileStorage FileStorage => OptionsScreen.SyncObject.FileStorage;
+        private static IFileStorage FileStorage => MBOptionScreenSubModule.SyncObject.FileStorage;
 
         public static T Get<T>(string id) where T : ISerializeableFile =>
             FileStorage == null ? default : FileStorage.Get<T>(id);

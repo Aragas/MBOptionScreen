@@ -2,52 +2,46 @@
 
 namespace MBOptionScreen.GUI.v1.Views
 {
-    internal class ModLibSliderWidget : SliderWidget
+    internal class ModLibSliderWidget_v1 : SliderWidget
     {
         //private float oldFloatValue;
         //private int oldIntValue;
-        private float _finalisedFloatValue;
-        private int _finalisedIntValue;
+        private float _finalizedFloatValue;
+        private int _finalizedIntValue;
 
-        public float FinalisedFloatValue
+        public float FinalizedFloatValue
         {
-            get
-            {
-                return _finalisedFloatValue;
-            }
+            get => _finalizedFloatValue;
             set
             {
-                _finalisedFloatValue = value;
-                OnPropertyChanged(value, "FinalisedFloatValue");
+                _finalizedFloatValue = value;
+                OnPropertyChanged(value, nameof(FinalizedFloatValue));
             }
         }
-        public int FinalisedIntValue
+        public int FinalizedIntValue
         {
-            get
-            {
-                return _finalisedIntValue;
-            }
+            get => _finalizedIntValue;
             set
             {
-                _finalisedIntValue = value;
-                OnPropertyChanged(value, "FinalisedIntValue");
+                _finalizedIntValue = value;
+                OnPropertyChanged(value, nameof(FinalizedIntValue));
             }
         }
 
-        public ModLibSliderWidget(UIContext context) : base(context)
+        public ModLibSliderWidget_v1(UIContext context) : base(context)
         {
         }
 
         protected override void OnValueFloatChanged(float value)
         {
             base.OnValueFloatChanged(value);
-            FinalisedFloatValue = value;
+            FinalizedFloatValue = value;
         }
 
         protected override void OnValueIntChanged(int value)
         {
             base.OnValueIntChanged(value);
-            FinalisedIntValue = value;
+            FinalizedIntValue = value;
         }
     }
 }

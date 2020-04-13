@@ -48,7 +48,7 @@ namespace MBOptionScreen.SettingDatabase
                             let propAttr = p.GetCustomAttribute<SettingPropertyAttribute>(true)
                             let groupAttr = p.GetCustomAttribute<SettingPropertyGroupAttribute>(true)
                             where propAttr != null
-                            let groupAttrToAdd = groupAttr == null ? SettingPropertyGroupAttribute.Default : groupAttr
+                            let groupAttrToAdd = groupAttr ?? SettingPropertyGroupAttribute.Default
                             select new SettingProperty(propAttr, groupAttrToAdd, p, this)).ToList();
 
 

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Reflection;
-using System.Xml;
+﻿using System.Xml;
 
 using TaleWorlds.Engine.GauntletUI;
 using TaleWorlds.GauntletUI.PrefabSystem;
@@ -8,96 +6,56 @@ using TaleWorlds.GauntletUI.PrefabSystem;
 namespace MBOptionScreen
 {
     /// <summary>
-    /// Loads the embded .xml files from the library
+    /// Loads the embed .xml files from the library
     /// </summary>
-    public class PrefabsLoader
+    internal static class PrefabsLoader
     {
-        private static MethodInfo LoadParametersMethod { get; } = typeof(WidgetPrefab)
-            .GetMethod("LoadParameters", BindingFlags.Static | BindingFlags.NonPublic);
-        private static MethodInfo LoadConstantsMethod { get; } = typeof(WidgetPrefab)
-            .GetMethod("LoadConstants", BindingFlags.Static | BindingFlags.NonPublic);
-        private static MethodInfo LoadCustomElementsMethod { get; } = typeof(WidgetPrefab)
-            .GetMethod("LoadCustomElements", BindingFlags.Static | BindingFlags.NonPublic);
-        private static MethodInfo LoadVisualDefinitionsMethod { get; } = typeof(WidgetPrefab)
-            .GetMethod("LoadVisualDefinitions", BindingFlags.Static | BindingFlags.NonPublic);
-        private static PropertyInfo RootTemplateProperty { get; } = typeof(WidgetPrefab)
-            .GetProperty("RootTemplate", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-        private static MethodInfo OnLoadingFinishedMethod { get; } = typeof(PrefabExtension)
-            .GetMethod("OnLoadingFinished", BindingFlags.Instance | BindingFlags.NonPublic);
+        private static readonly string ModOptionsScreen_v1Path = "MBOptionScreen._Data.GUI.v1.Prefabs.ModOptionsScreen.xml";
 
+        private static readonly string ModSettingsItem_v1Path = "MBOptionScreen._Data.GUI.v1.Prefabs.ModSettingsItem.xml";
 
-        private static string ModOptionsScreenPath = "MBOptionScreen.GUI.Prefabs.ModOptionsScreen.xml";
-        private static string ModSettingsItemPath = "MBOptionScreen.GUI.Prefabs.ModSettingsItem.xml";
-        private static string SettingPropertyGroupViewPath = "MBOptionScreen.GUI.Prefabs.SettingPropertyGroupView.xml";
-        private static string SettingPropertyViewPath = "MBOptionScreen.GUI.Prefabs.SettingPropertyView.xml";
-        private static string SettingViewPath = "MBOptionScreen.GUI.Prefabs.SettingsView.xml";
-        
-        public static WidgetPrefab LoadModOptionsScreenPrefab() =>
-            LoadPrefab(ModOptionsScreenPath);
-        public static WidgetPrefab LoadModSettingsItemPrefab() =>
-            LoadPrefab(ModSettingsItemPath);
-        public static WidgetPrefab LoadSettingPropertyGroupVievPrefab() =>
-            LoadPrefab(SettingPropertyGroupViewPath);
-        public static WidgetPrefab LoadSettingPropertyViewPrefab() =>
-            LoadPrefab(SettingPropertyViewPath);
-        public static WidgetPrefab LoadSettingViewPrefab() =>
-            LoadPrefab(SettingViewPath);
+        private static readonly string SettingPropertyGroupView_v1Path = "MBOptionScreen._Data.GUI.v1.Prefabs.SettingPropertyGroupView.xml";
 
-        private static WidgetPrefab LoadPrefab(string embdedPath)
+        private static readonly string SettingPropertyView_v1Path = "MBOptionScreen._Data.GUI.v1.Prefabs.SettingPropertyView.xml";
+
+        private static readonly string SettingView_v1Path = "MBOptionScreen._Data.GUI.v1.Prefabs.SettingsView.xml";
+
+        public static void Initialize()
         {
-            var doc = Load(embdedPath);
-            return LoadFrom(
-                UIResourceManager.WidgetFactory.PrefabExtensionContext,
-                UIResourceManager.WidgetFactory.WidgetAttributeContext,
-                doc);
+            LoadSettingView_v1Prefab();
+            LoadModSettingsItem_v1Prefab();
+            LoadSettingPropertyView_v1Prefab();
+            LoadSettingPropertyGroupView_v1Prefab();
         }
-        private static WidgetPrefab LoadFrom(PrefabExtensionContext prefabExtensionContext, WidgetAttributeContext widgetAttributeContext, XmlDocument xmlDocument)
+
+        private static void LoadModSettingsItem_v1Prefab()
         {
-            var widgetPrefab = new WidgetPrefab();
-            var xmlNode = xmlDocument.SelectSingleNode("Prefab");
-            WidgetTemplate widgetTemplate;
-            if (xmlNode != null)
-            {
-                var xmlNode2 = xmlNode.SelectSingleNode("Parameters");
-                var xmlNode3 = xmlNode.SelectSingleNode("Constants");
-                var xmlNode4 = xmlNode.SelectSingleNode("Variables");
-                var xmlNode5 = xmlNode.SelectSingleNode("VisualDefinitions");
-                var xmlNode6 = xmlNode.SelectSingleNode("CustomElements");
-                var firstChild = xmlNode.SelectSingleNode("Window").FirstChild;
-                widgetTemplate = WidgetTemplate.LoadFrom(prefabExtensionContext, widgetAttributeContext, firstChild);
-                if (xmlNode2 != null)
-                {
-                    widgetPrefab.Parameters = (Dictionary<string, string>)LoadParametersMethod.Invoke(null, new object[] { xmlNode2 });
-                }
-                if (xmlNode3 != null)
-                {
-                    widgetPrefab.Constants = (Dictionary<string, ConstantDefinition>)LoadConstantsMethod.Invoke(null, new object[] { xmlNode3 });
-                }
-                if (xmlNode6 != null)
-                {
-                    widgetPrefab.CustomElements = (Dictionary<string, XmlElement>)LoadCustomElementsMethod.Invoke(null, new object[] { xmlNode6 });
-                }
-                if (xmlNode5 != null)
-                {
-                    widgetPrefab.VisualDefinitionTemplates = (Dictionary<string, VisualDefinitionTemplate>)LoadVisualDefinitionsMethod.Invoke(null, new object[] { xmlNode5 });
-                }
-            }
-            else
-            {
-                var firstChild2 = xmlDocument.SelectSingleNode("Window").FirstChild;
-                widgetTemplate = WidgetTemplate.LoadFrom(prefabExtensionContext, widgetAttributeContext, firstChild2);
-            }
-            widgetTemplate.SetRootTemplate(widgetPrefab);
-            RootTemplateProperty.SetValue(widgetPrefab, widgetTemplate);
-            foreach (var prefabExtension in prefabExtensionContext.PrefabExtensions)
-            {
-                OnLoadingFinishedMethod.Invoke(prefabExtension, new object[] { widgetPrefab });
-            }
-            return widgetPrefab;
+            if (UIResourceManager.WidgetFactory.GetCustomType("ModSettingsItem") == null)
+                PrefabInjector.InjectDocumentAndCreate("ModSettingsItem", Load(ModSettingsItem_v1Path));
         }
-        private static XmlDocument Load(string embdedPath)
+        private static void LoadSettingPropertyView_v1Prefab()
         {
-            using var stream = typeof(PrefabsLoader).Assembly.GetManifestResourceStream(embdedPath);
+            if (UIResourceManager.WidgetFactory.GetCustomType("SettingPropertyView") == null)
+                PrefabInjector.InjectDocumentAndCreate("SettingPropertyView", Load(SettingPropertyView_v1Path));
+        }
+        private static void LoadSettingPropertyGroupView_v1Prefab()
+        {
+            if (UIResourceManager.WidgetFactory.GetCustomType("SettingPropertyGroupView") == null)
+                PrefabInjector.InjectDocumentAndCreate("SettingPropertyGroupView", Load(SettingPropertyGroupView_v1Path));
+        }
+        private static void LoadSettingView_v1Prefab()
+        {
+            if (UIResourceManager.WidgetFactory.GetCustomType("SettingsView") == null)
+                PrefabInjector.InjectDocumentAndCreate("SettingsView", Load(SettingView_v1Path));
+        }
+        public static WidgetPrefab LoadModOptionsScreen_v1Prefab()
+        {
+            return PrefabInjector.InjectDocumentAndCreate("ModOptionsScreen", Load(ModOptionsScreen_v1Path));
+        }
+
+        private static XmlDocument Load(string embedPath)
+        {
+            using var stream = typeof(PrefabsLoader).Assembly.GetManifestResourceStream(embedPath);
             var doc = new XmlDocument();
             doc.Load(stream);
             return doc;

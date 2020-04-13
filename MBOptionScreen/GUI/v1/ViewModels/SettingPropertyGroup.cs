@@ -6,10 +6,11 @@ namespace MBOptionScreen.GUI.v1.ViewModels
     public class SettingPropertyGroup : ViewModel
     {
         public const string DefaultGroupName = "Misc";
+
+        public ModSettingsScreenVM MainView { get; private set; }
         public SettingProperty GroupToggleSettingProperty { get; private set; } = null;
         public SettingPropertyGroupAttribute Attribute { get; private set; }
         public UndoRedoStack URS { get; private set; }
-        public ModSettingsScreenVM Parent { get; private set; }
         public string HintText
         {
             get
@@ -53,9 +54,9 @@ namespace MBOptionScreen.GUI.v1.ViewModels
                     OnPropertyChanged();
                     foreach (var propSetting in SettingProperties)
                     {
-                        propSetting.OnPropertyChanged("IsEnabled");
-                        propSetting.OnPropertyChanged("IsSettingVisible");
-                        OnPropertyChanged("GroupNameDisplay");
+                        propSetting.OnPropertyChanged(nameof(SettingProperty.IsEnabled));
+                        propSetting.OnPropertyChanged(nameof(SettingProperty.IsSettingVisible));
+                        OnPropertyChanged(nameof(GroupNameDisplay));
                     }
                 }
             }
@@ -74,12 +75,13 @@ namespace MBOptionScreen.GUI.v1.ViewModels
             foreach (var setting in SettingProperties)
                 setting.RefreshValues();
 
-            OnPropertyChanged("GroupNameDisplay");
+            OnPropertyChanged(nameof(GroupNameDisplay));
         }
 
         public void Add(SettingProperty sp)
         {
             SettingProperties.Add(sp);
+            sp.SetMainView(MainView);
             sp.Group = this;
 
             if (sp.GroupAttribute.IsMainToggle)
@@ -96,23 +98,23 @@ namespace MBOptionScreen.GUI.v1.ViewModels
                 settingProp.AssignUndoRedoStack(urs);
         }
 
-        public void SetParent(ModSettingsScreenVM parent)
+        public void SetParent(ModSettingsScreenVM mainView)
         {
-            Parent = parent;
-            foreach (var settingProperty in SettingProperties)
-                settingProperty.SetParent(Parent);
+            MainView = mainView;
+            //foreach (var settingProperty in SettingProperties)
+            //    settingProperty.SetMainView(MainView);
         }
 
         private void OnHover()
         {
-            if (Parent != null && !string.IsNullOrWhiteSpace(HintText))
-                Parent.HintText = HintText;
+            if (MainView != null && !string.IsNullOrWhiteSpace(HintText))
+                MainView.HintText = HintText;
         }
 
         private void OnHoverEnd()
         {
-            if (Parent != null)
-                Parent.HintText = "";
+            if (MainView != null)
+                MainView.HintText = "";
         }
     }
 }

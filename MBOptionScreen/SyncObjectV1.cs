@@ -1,4 +1,5 @@
-﻿using MBOptionScreen.FileDatabase;
+﻿using System;
+using MBOptionScreen.FileDatabase;
 using MBOptionScreen.SettingDatabase;
 using TaleWorlds.Engine.Screens;
 using TaleWorlds.Localization;
@@ -11,10 +12,10 @@ namespace MBOptionScreen
     /// </summary>
     internal class SyncObjectV1 : InitialStateOption
     {
-        public static string SyncId = "modlib_syncronization_object";
+        public static string SyncId = "mboptionscreen_syncronization_object";
 
         public bool HasInitializedVM { get; internal set; }
-        public ScreenBase ModOptionScreen { get; internal set; }
+        public Type ModOptionScreen { get; internal set; }
         public IFileStorage FileStorage { get; internal set; }
         public ISettingsStorage SettingsStorage { get; internal set; }
 

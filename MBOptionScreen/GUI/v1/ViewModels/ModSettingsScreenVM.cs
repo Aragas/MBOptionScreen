@@ -27,17 +27,12 @@ namespace MBOptionScreen.GUI.v1.ViewModels
             set
             {
                 _titleLabel = value;
-                OnPropertyChanged();
+                OnPropertyChanged(nameof(TitleLabel));
             }
         }
         [DataSourceProperty]
-        public bool ChangesMade
-        {
-            get
-            {
-                return ModSettingsList.Any((x) => x.URS.ChangesMade());
-            }
-        }
+        public bool ChangesMade => ModSettingsList.Any((x) => x.URS.ChangesMade());
+
         [DataSourceProperty]
         public string DoneButtonText
         {
@@ -45,7 +40,7 @@ namespace MBOptionScreen.GUI.v1.ViewModels
             set
             {
                 _doneButtonText = value;
-                OnPropertyChanged();
+                OnPropertyChanged(nameof(DoneButtonText));
             }
         }
         [DataSourceProperty]
@@ -54,7 +49,7 @@ namespace MBOptionScreen.GUI.v1.ViewModels
             get => _cancelButtonText; set
             {
                 _cancelButtonText = value;
-                OnPropertyChanged();
+                OnPropertyChanged(nameof(CancelButtonText));
             }
         }
         [DataSourceProperty]
@@ -63,10 +58,10 @@ namespace MBOptionScreen.GUI.v1.ViewModels
             get => _modSettingsList;
             set
             {
-                if (!(_modSettingsList == value))
+                if (_modSettingsList != value)
                 {
                     _modSettingsList = value;
-                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(ModSettingsList));
                 }
             }
         }
@@ -79,14 +74,14 @@ namespace MBOptionScreen.GUI.v1.ViewModels
                 if (_selectedMod != value)
                 {
                     _selectedMod = value;
-                    OnPropertyChanged();
-                    OnPropertyChanged("SelectedModName");
-                    OnPropertyChanged("SomethingSelected");
+                    OnPropertyChanged(nameof(SelectedMod));
+                    OnPropertyChanged(nameof(SelectedModName));
+                    OnPropertyChanged(nameof(SomethingSelected));
                 }
             }
         }
         [DataSourceProperty]
-        public string SelectedModName => SelectedMod == null ? "Mod Name Goes Here" : SelectedMod.ModName;
+        public string SelectedModName => SelectedMod == null ? "Mod Name not Specified" : SelectedMod.ModName;
         [DataSourceProperty]
         public bool SomethingSelected => SelectedMod != null;
         [DataSourceProperty]
@@ -98,8 +93,8 @@ namespace MBOptionScreen.GUI.v1.ViewModels
                 if (_hintText != value)
                 {
                     _hintText = value;
-                    OnPropertyChanged();
-                    OnPropertyChanged("IsHintVisible");
+                    OnPropertyChanged(nameof(HintText));
+                    OnPropertyChanged(nameof(IsHintVisible));
                 }
             }
         }
@@ -107,6 +102,14 @@ namespace MBOptionScreen.GUI.v1.ViewModels
 
         public ModSettingsScreenVM()
         {
+            ModSettingsList = new MBBindingList<ModSettingsVM>();
+            foreach (var viewModel in SettingsDatabase.ModSettingsVMs)
+            {
+                viewModel.AddSelectCommand(ExecuteSelect);
+                viewModel.SetParent(this);
+                ModSettingsList.Add(viewModel);
+            }
+
             RefreshValues();
         }
 
@@ -117,56 +120,51 @@ namespace MBOptionScreen.GUI.v1.ViewModels
             DoneButtonText = new TextObject("{=WiNRdfsm}Done", null).ToString();
             CancelButtonText = new TextObject("{=3CpNUnVl}Cancel", null).ToString();
 
-            ModSettingsList.Clear();
-            foreach (var msvm in SettingsDatabase.ModSettingsVMs)
+            foreach (var viewModel in ModSettingsList)
+                viewModel.RefreshValues();
+
+            OnPropertyChanged(nameof(SelectedMod));
+        }
+
+        public void ExecuteClose()
+        {
+            foreach (var viewModel in ModSettingsList)
             {
-                msvm.AddSelectCommand(ExecuteSelect);
-                ModSettingsList.Add(msvm);
-                msvm.SetParent(this);
-                msvm.RefreshValues();
+                viewModel.URS.UndoAll();
+                viewModel.URS.ClearStack();
             }
-            OnPropertyChanged("SelectedMod");
         }
 
         public bool ExecuteCancel()
         {
-            //Revert any changes
             ScreenManager.PopScreen();
-            foreach (var msvm in ModSettingsList)
+            foreach (var viewModel in ModSettingsList)
             {
-                msvm.URS.UndoAll();
-                msvm.URS.ClearStack();
+                viewModel.URS.UndoAll();
+                viewModel.URS.ClearStack();
             }
-            AssignParent(true);
-            ExecuteSelect(null);
             return true;
         }
-
         private void ExecuteDone()
         {
             //Save the changes to file.
-            if (ModSettingsList.Any((x) => x.URS.ChangesMade()))
+            if (!ModSettingsList.Any(x => x.URS.ChangesMade()))
             {
-                InformationManager.ShowInquiry(new InquiryData("Game Needs to Restart",
-                                "The game needs to be restarted to apply mods settings changes. Do you want to close the game now?",
-                                true, true, "Yes", "No",
-                                () =>
-                                {
-                                    ModSettingsList.Where((x) => x.URS.ChangesMade())
-                                    .Do((x) => SettingsDatabase.SaveSettings(x.SettingsInstance))
-                                    .Do((x) => x.URS.ClearStack());
-
-                                    Utilities.QuitGame();
-                                }, () => { }));
-            }
-            else
                 ScreenManager.PopScreen();
-        }
+                return;
+            }
 
-        public void AssignParent(bool remove = false)
-        {
-            foreach (var msvm in ModSettingsList)
-                msvm.SetParent(remove ? null : this);
+            InformationManager.ShowInquiry(new InquiryData("Game Needs to Restart",
+                "The game needs to be restarted to apply mods settings changes. Do you want to close the game now?",
+                true, true, "Yes", "No",
+                () =>
+                {
+                    ModSettingsList.Where((x) => x.URS.ChangesMade())
+                        .Do((x) => SettingsDatabase.SaveSettings(x.SettingsInstance))
+                        .Do((x) => x.URS.ClearStack());
+
+                    Utilities.QuitGame();
+                }, () => { }));
         }
 
         public void ExecuteSelect(ModSettingsVM msvm)

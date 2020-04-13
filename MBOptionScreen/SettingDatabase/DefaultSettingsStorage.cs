@@ -9,36 +9,25 @@ using System.Linq;
 
 namespace MBOptionScreen.SettingDatabase
 {
-    [SettingsStorageVersion("1.0.0",  1)]
-    [SettingsStorageVersion("1.0.1",  1)]
-    [SettingsStorageVersion("1.1.2",  1)]
-    [SettingsStorageVersion("1.1.3",  1)]
-    [SettingsStorageVersion("1.1.4",  1)]
-    [SettingsStorageVersion("1.1.5",  1)]
-    [SettingsStorageVersion("1.1.6",  1)]
-    [SettingsStorageVersion("1.1.7",  1)]
-    [SettingsStorageVersion("1.1.8",  1)]
-    [SettingsStorageVersion("1.1.9",  1)]
-    [SettingsStorageVersion("1.1.10", 1)]
-    [SettingsStorageVersion("1.1.0",  1)]
+    [SettingsStorageVersion("e1.0.0",  1)]
+    [SettingsStorageVersion("e1.0.1",  1)]
+    [SettingsStorageVersion("e1.0.2",  1)]
+    [SettingsStorageVersion("e1.0.3",  1)]
+    [SettingsStorageVersion("e1.0.4",  1)]
+    [SettingsStorageVersion("e1.0.5",  1)]
+    [SettingsStorageVersion("e1.0.6",  1)]
+    [SettingsStorageVersion("e1.0.7",  1)]
+    [SettingsStorageVersion("e1.0.8",  1)]
+    [SettingsStorageVersion("e1.0.9",  1)]
+    [SettingsStorageVersion("e1.0.10", 1)]
+    [SettingsStorageVersion("e1.1.0",  1)]
     internal class DefaultSettingsStorage : ISettingsStorage
     {
-        private List<ModSettingsVM> _modSettingsVMs = null;
         private Dictionary<string, SettingsBase> AllSettingsDict { get; } = new Dictionary<string, SettingsBase>();
 
         public List<SettingsBase> AllSettings => AllSettingsDict.Values.ToList();
         public int SettingsCount => AllSettingsDict.Values.Count;
-        public List<ModSettingsVM> ModSettingsVMs
-        {
-            get
-            {
-                if (_modSettingsVMs == null)
-                {
-                    BuildModSettingsVMs();
-                }
-                return _modSettingsVMs;
-            }
-        }
+        public List<ModSettingsVM> ModSettingsVMs => GetModSettingsVMs().ToList();
 
         public DefaultSettingsStorage()
         {
@@ -51,7 +40,6 @@ namespace MBOptionScreen.SettingDatabase
             if (!AllSettingsDict.ContainsKey(settingsClass.ID))
             {
                 AllSettingsDict.Add(settingsClass.ID, settingsClass);
-                _modSettingsVMs = null;
                 return true;
             }
             else
@@ -61,35 +49,24 @@ namespace MBOptionScreen.SettingDatabase
             }
         }
 
-        public ISerializeableFile GetSettings(string uniqueID)
-        {
-            if (AllSettingsDict.ContainsKey(uniqueID))
-            {
-                return AllSettingsDict[uniqueID];
-            }
-            else
-                return null;
-        }
+        public ISerializeableFile GetSettings(string uniqueID) => AllSettingsDict.ContainsKey(uniqueID) ? AllSettingsDict[uniqueID] : null;
 
         public void SaveSettings(SettingsBase settingsInstance)
         {
             FileDatabase.FileDatabase.SaveToFile(settingsInstance.ModuleFolderName, settingsInstance, Location.Configs);
         }
 
-        public void BuildModSettingsVMs()
+        public IEnumerable<ModSettingsVM> GetModSettingsVMs()
         {
             try
             {
-                _modSettingsVMs = new List<ModSettingsVM>();
-                foreach (var settings in AllSettings)
-                {
-                    ModSettingsVM msvm = new ModSettingsVM(settings);
-                    _modSettingsVMs.Add(msvm);
-                }
-                _modSettingsVMs.Sort((x, y) => y.ModName.CompareTo(x.ModName));
+                return AllSettings
+                    .Select(settings => new ModSettingsVM(settings))
+                    .OrderBy(x => x.ModName);
             }
             catch (Exception ex)
             {
+                return new List<ModSettingsVM>();
                 // TODO
                 //ModDebug.ShowError("An error occurred while creating the ViewModels for all mod settings", "Error Occurred", ex);
             }

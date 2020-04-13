@@ -1,10 +1,11 @@
 ﻿using System;
+using TaleWorlds.Library;
 
 namespace MBOptionScreen.Attributes
 {
     public interface IAttributeWithVersion
     {
-        Version GameVersion { get; }
+        ApplicationVersion GameVersion { get; }
         int ImplementationVersion { get;} 
     }
 }

@@ -6,7 +6,7 @@
 
   </Constants>
   <Window>
-    <Widget Id="ModOptionsScreen" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent">
+    <Widget Id="ModOptionsScreen_v1" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent">
       <Children>
 
         <Standard.Background/>
@@ -22,7 +22,7 @@
               <Children>
 
                 <!-- Title -->
-                <RichTextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" Brush="ModSettings.Title.Text" Text="Mods"
+                <RichTextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" Brush="ModSettings.Title.Text_v1" Text="Mods"
                                 HorizontalAlignment="Center" VerticalAlignment="Top" MarginRight="19" PositionYOffset="-10"/>
 
                 <!-- Mods Listing Section Inner Panel-->
@@ -103,9 +103,9 @@
                 <ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" LayoutImp.LayoutMethod="VerticalBottomToTop">
                   <Children>
                     <!-- Title -->
-                    <RichTextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="80" Brush="ModSettings.Title.Text" Text="@SelectedModName"
+                    <RichTextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="80" Brush="ModSettings.Title.Text_v1" Text="@SelectedModName"
                                     HorizontalAlignment="Center" VerticalAlignment="Top" />
-                    <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="2"  VerticalAlignment="Top" Brush="Divider.Yellow"
+                    <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="2"  VerticalAlignment="Top" Brush="Divider.Yellow_v1"
                             MarginLeft="15" MarginRight="15"/>
 
                     <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" MarginRight="30" MarginLeft="30">
@@ -143,11 +143,11 @@
                                LayoutImp.LayoutMethod="VerticalBottomToTop" MarginTop="1">
                       <Children>
 
-                        <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="2"  VerticalAlignment="Top" Brush="Divider.Yellow"
+                        <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="2"  VerticalAlignment="Top" Brush="Divider.Yellow_v1"
                                 MarginLeft="15" MarginRight="15" MarginBottom="2"/>
 
                         <RichTextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Text="@HintText" IsVisible="@IsHintVisible"
-                                    HorizontalAlignment="Left" VerticalAlignment="Center" MarginLeft="20" MarginRight="10" Brush="ModSettings.Hint.Text"/>
+                                    HorizontalAlignment="Left" VerticalAlignment="Center" MarginLeft="20" MarginRight="10" Brush="ModSettings.Hint.Text_v1"/>
 
                       </Children>
                     </ListPanel>

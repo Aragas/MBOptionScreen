@@ -8,7 +8,7 @@
           <Children>
             <!-- Group Name -->
             <RichTextWidget Text="@GroupNameDisplay" HeightSizePolicy="CoverChildren" WidthSizePolicy="CoverChildren" HorizontalAlignment="Left"
-                            VerticalAlignment="Center" MarginLeft="10" Brush="ModSettings.Group.Text"/>
+                            VerticalAlignment="Center" MarginLeft="10" Brush="ModSettings.Group.Text_v1"/>
             <!-- Enable toggle -->
             <Widget WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" VerticalAlignment="Center" HorizontalAlignment="Right"
                     IsVisible="@HasGroupToggle" UpdateChildrenStates="true" MarginRight="10">
@@ -29,7 +29,7 @@
           </Children>
         </Widget>
 
-        <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="2"  VerticalAlignment="Top" MarginTop="4" Brush="Kingdom.Divider.White"/>
+        <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="2"  VerticalAlignment="Top" MarginTop="4" Brush="Kingdom.Divider.White_v1"/>
 
         <ListPanel DataSource="{SettingProperties}" HeightSizePolicy="CoverChildren" WidthSizePolicy="StretchToParent" MarginLeft="10" MarginRight="10"
                    LayoutImp.LayoutMethod="VerticalBottomToTop" HorizontalAlignment="Left" MarginTop="10">
